@@ -1,0 +1,34 @@
+---
+# Make sure to NOT to end D42_API_URL in /
+D42_API_URL:       https://D42_IP_or_FQDN
+D42_USERNAME:      D42USER
+D42_PASSWORD:      D42PASS
+USE_IP_RANGE:      true
+# Start and End IP. There is no validation in the script. Please make sure these are in same subnet. Valid if USE_IP_RANGE = True
+IP_RANGE:
+  - 192.168.11.10
+  - 192.168.11.202
+# Always use / CIDR notation for the network. Only valid if USE_IP_RANGE = False
+NETWORKS:
+  - 10.10.0.0/23
+  - 10.11.8.0/23
+LINUX_USER:        USER
+# Change USE_KEY_FILE to False if using password. password for linux servers. not required if using key file.
+LINUX_PASSWORD:    PASS
+# Change this to true, if not using password.
+USE_KEY_FILE:      false
+# Key file name (with full path if not in same directory as the script)
+KEY_FILE:          /path/.ssh/id_rsa.pub
+# SSH port to use
+PORT:              22
+# Timeout in seconds for the ssh session
+TIMEOUT:           5
+GET_SERIAL_INFO:   true
+GET_HARDWARE_INFO: true
+GET_OS_DETAILS:    true
+GET_CPU_INFO:      true
+GET_MEMORY_INFO:   true
+ignoreDomain:      true
+uploadipv6:        true
+DEBUG:             false
+

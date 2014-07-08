@@ -32,10 +32,23 @@ import math
 import urllib2, urllib
 from base64 import b64encode
 import simplejson as json
+import yaml
+from os.path import expanduser
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+# You can copy src/d42.yaml-example from the repo to ~/.d42.yaml
+# and then updated the values to override the enclosed defaults
+config = []
+homedir = expanduser('~')
+try:
+    with open(homedir + '/.d42.yaml', 'r') as f:
+        config = yaml.load(f)
+except:
+    pass
+
+# DEFAULTS
 D42_API_URL = 'https://D42_IP_or_FQDN' #make sure to NOT to end in /
 D42_USERNAME = 'D42USER'
 D42_PASSWORD = 'D42PASS'
@@ -57,7 +70,30 @@ ignoreDomain = True
 uploadipv6 = True
 DEBUG = False
 
+keys = [ 'D42_API_URL',
+'D42_USERNAME',
+'D42_PASSWORD',
+'IP_RANGE',
+'USE_IP_RANGE',
+'NETWORKS',
+'LINUX_USER',
+'LINUX_PASSWORD',
+'USE_KEY_FILE',
+'KEY_FILE',
+'PORT',
+'TIMEOUT',
+'GET_SERIAL_INFO',
+'GET_HARDWARE_INFO',
+'GET_OS_DETAILS',
+'GET_CPU_INFO',
+'GET_MEMORY_INFO',
+'ignoreDomain',
+'uploadipv6',
+'DEBUG', ]
 
+for k in keys:
+    if k in config:
+        globals()[k] = config[k]
 
 def to_ascii(s):
     try: return s.encode('ascii','ignore')
@@ -126,7 +162,7 @@ def grab_and_post_inventory_data(machine_name):
         print str(machine_name) + ': ' + str(err)
         return  None
     devargs = {}
-    
+
     print '[+] Connecting to: %s' % machine_name
     stdin, stdout, stderr = ssh.exec_command("/bin/hostname")
     data_err = stderr.readlines()
@@ -140,7 +176,7 @@ def grab_and_post_inventory_data(machine_name):
     else:
         if DEBUG:
             print data_err
-    
+
     if not device_name:
         return None
 
@@ -240,7 +276,7 @@ def grab_and_post_inventory_data(machine_name):
             else:
                 if DEBUG:
                     print data_err
-                    
+
             stdin, stdout, stderr = ssh.exec_command("sudo dmidecode -s processor-frequency")
             data_err = stderr.readlines()
             data_out = stdout.readlines()
