@@ -126,7 +126,7 @@ def grab_and_post_inventory_data(machine_name):
         print str(machine_name) + ': ' + str(err)
         return  None
     devargs = {}
-    
+
     print '[+] Connecting to: %s' % machine_name
     stdin, stdout, stderr = ssh.exec_command("/bin/hostname")
     data_err = stderr.readlines()
@@ -140,7 +140,7 @@ def grab_and_post_inventory_data(machine_name):
     else:
         if DEBUG:
             print data_err
-    
+
     if not device_name:
         return None
 
@@ -176,18 +176,19 @@ def grab_and_post_inventory_data(machine_name):
             if len(data_out) > 0:
                 manufacturer = data_out[0].rstrip()
                 if manufacturer and manufacturer != '':
-                    for mftr in ['VMware, Inc.', 'Bochs', 'KVM', 'QEMU', 'Microsoft Corporation', '    Xen']:
-                        if mftr == to_ascii(manufacturer).replace("# SMBIOS implementations newer     than version 2.6 are not\n# fully supported by this version of     dmidecode.\n", "").strip():
+                    for mftr in ['VMware, Inc.', 'Bochs', 'KVM', 'QEMU', 'Microsoft Corporation', 'Xen']:
+                        if mftr == to_ascii(manufacturer).replace("# SMBIOS implementations newer than version 2.6 are not\n# fully supported by this version of dmidecode.\n", "").strip():
                             manufacturer = 'virtual'
                             devargs.update({ 'type' : 'virtual', })
                             break
                     if manufacturer != 'virtual' and GET_HARDWARE_INFO:
-                        devargs.update({'manufacturer': to_ascii(manufacturer).replace("# SMBIOS     implementations newer than version 2.6 are not\n# fully supported by     this version of dmidecode.\n", "").strip()})
-                        stdin, stdout, stderr = ssh.exec_command("sudo dmidecode -s system-product-    name")
+                        devargs.update({'manufacturer': to_ascii(manufacturer).replace("# SMBIOS implementations newer than version 2.6 are not\n# fully supported by this version of dmidecode.\n", "").strip()})
+                        stdin, stdout, stderr = ssh.exec_command("sudo dmidecode -s system-product-name")
                         data_err = stderr.readlines()
                         data_out = stdout.readlines()
                         if not data_err:
                             hardware = data_out[0].rstrip()
+                            devargs.update({ 'type' : 'physical', })
                             if hardware and hardware != '': devargs.update({'hardware': hardware})
                         else:
                             if DEBUG:
@@ -240,7 +241,7 @@ def grab_and_post_inventory_data(machine_name):
             else:
                 if DEBUG:
                     print data_err
-                    
+
             stdin, stdout, stderr = ssh.exec_command("sudo dmidecode -s processor-frequency")
             data_err = stderr.readlines()
             data_out = stdout.readlines()
